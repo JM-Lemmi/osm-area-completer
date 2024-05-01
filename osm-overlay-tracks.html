@@ -1,0 +1,51 @@
+<html>
+<head>
+        <title>OSM Area Completer</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/> 
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script> <!-- https://github.com/mpetazzoni/leaflet-gpx -->
+
+        <!--
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css" rel="stylesheet" />
+        -->
+</head>
+<body>
+        <div id="map" style="width: 100%; height: 100%;"></div>
+        <script>
+                var map = L.map('map').setView([49.29134, 8.69980], 13);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map);
+
+                // Tracks
+                [
+                        'abc.gpx',
+                        '2023-08-06_1246333368_Wiesloch Erkundung I.gpx',
+                        '2023-08-07_1247906259_Wiesloch Erkundung II.gpx',
+                        '2023-08-09_1251546599_Radrunde richtung Steinbruch.gpx',
+                        '2023-08-11_1254770541_Nach Karlsruhe.gpx',
+                        '2023-09-27_1326696210_Um das Kreuz Walldorf.gpx',
+                        '2024-04-21_1526338551_Fahrradtour.gpx',
+                        '2024-05-01_1548026119_Wiesloch III.gpx',
+                ]
+                .forEach(function(gpx) {
+                        new L.GPX('./tracks/'+gpx,
+                                {polyline_options: {
+                                        color: 'red',
+                                        opacity: 0.75,
+                                        weight: 3,
+                                        lineCap: 'round'
+                                },
+                                marker_options: {
+                                        startIconUrl: '',
+                                        endIconUrl: '',
+                                        shadowUrl: ''
+                                }})
+                                .addTo(map);
+                });                
+        </script>
+</body>
+</html>
