@@ -9,10 +9,8 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-    <!--
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css" rel="stylesheet" />
-    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -106,6 +104,84 @@
                         .addTo(map);
                 });
             });
+
+        // Areas
+        fetch('projects/' + project + '/areas.json')
+            .then(response => response.json())
+            .then(areas => {
+                areas.forEach(function (area) {
+                    var layer = L.geoJSON(area).addTo(map);
+                    if (area.properties && area.properties.name) {
+                        layer.bindPopup('<b>' + area.properties.name + '</b>');
+                    }
+                    drawnItems.addLayer(layer);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching areas:', error);
+            });
+    </script>
+    <script>
+        // Area drawing
+        
+        // Initialize the FeatureGroup to store editable layers
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Initialize the draw control and pass it the FeatureGroup of editable layers
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                polygon: true,
+                polyline: false,
+                rectangle: false,
+                circle: false,
+                marker: false,
+                circlemarker: false
+            }
+        });
+        map.addControl(drawControl);
+
+        // Event handler for when a new polygon is created
+        map.on(L.Draw.Event.CREATED, function (event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
+        var popupContent = '<label for="polygonName">Name:</label><input type="text" id="polygonName" name="polygonName"/><button onclick="savePolygonName()">Save</button>';
+        layer.bindPopup(popupContent).openPopup();
+
+        window.savePolygonName = function() {
+            var polygonName = document.getElementById('polygonName').value;
+            if (polygonName) {
+                layer.bindPopup('<b>' + polygonName + '</b>');
+                layer.closePopup();
+            var geojson = layer.toGeoJSON();
+            geojson.properties = { name: polygonName };
+
+            fetch('add-area.php?project=' + project, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(geojson)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    alert('area saved successfully');
+                } else {
+                    alert('Failed to save area: ' + response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error saving area:', error);
+                alert('Error saving area: ' + error);
+            });
+            } else {
+                alert('Please enter a name for the area.');
+            }
+        };
+        });
     </script>
 </body>
 

@@ -26,14 +26,16 @@
 
                 foreach ($folders as $folder) {
                     $files = glob($folder . '/*');
-                    $fileCount = count($files);
+                    $fileCount = count(array_filter($files, function ($file) {
+                        return pathinfo($file, PATHINFO_EXTENSION) === 'gpx';
+                    }));
                     $newestFile = array_reduce($files, function ($newest, $file) {
                         return filemtime($file) > filemtime($newest) ? $file : $newest;
                     }, $files[0]);
 
                     echo '<tr>';
                     echo '<td><a href="map.html?project=' . basename($folder) . '">' . basename($folder) . '</a></td>';
-                    echo '<td>' . ($fileCount - 1) . '</td>';
+                    echo '<td>' . ($fileCount) . '</td>';
                     echo '<td>' . date('Y-m-d H:i:s', filemtime($newestFile)) . '</td>';
                     echo '<td>unknown</td>';
                     echo '</tr>';
