@@ -7,6 +7,8 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script> <!-- https://github.com/mpetazzoni/leaflet-gpx -->
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <!--
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css" rel="stylesheet" />
@@ -14,7 +16,6 @@
 </head>
 
 <body>
-    <div id="map" style="width: 100%; height: 100%;"></div>
     <script>
         // Project
         const urlParams = new URLSearchParams(window.location.search);
@@ -23,6 +24,43 @@
             alert('Project parameter is missing in the URL. How did you get here?');
             throw new Error('Project parameter is missing');
         }
+    </script>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">Home</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto"></ul>
+                    <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click();">Upload</button>
+                    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile(this.files[0])" />
+                    <script>
+                        function uploadFile(file) {
+                            var formData = new FormData();
+                            formData.append('file', file);
+
+                            fetch('upload.php?project='+project, {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (response.status === 200) {
+                                    alert('File upload successful');
+                                    window.location.reload();
+                                } else {
+                                    alert('File upload failed: ' + response.statusText);
+                                    throw new Error('File upload failed');
+                                }
+                            });
+                        }
+                    </script>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="map" style="width: 100%; height: 100%;"></div>
+    <script>
 
         // Init Map
         var map = L.map('map');
